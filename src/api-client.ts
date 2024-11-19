@@ -1,28 +1,28 @@
-const lists = ['Work Tasks', 'Personal Tasks', 'Shopping List']
-const listItems: Record<string, string[]> = {
-    'Work Tasks': ['Buy groceries', 'Complete React project', 'Exercise for 30 minutes', 'Read a book chapter'],
-    'Personal Tasks': ['Buy groceries', 'Complete React project', 'Exercise for 30 minutes', 'Read a book chapter'],
-    'Shopping List': ['Buy groceries', 'Complete React project', 'Exercise for 30 minutes', 'Read a book chapter']
-}
+import axios from "axios"
+
+const httpAddress = 'http://localhost:3000'
 
 export const apiClient = {
     getLists: async () => {
-        return Promise.resolve(lists)
+        const todoLists = await axios.get(httpAddress + '/lists');
+        const lists = todoLists.data.data.map((list: any) => list.id) || [];
+        return (lists);
     },
     addList: async (listName: string) => {
-        lists.push(listName)
-        console.debug('-- addList', listName, lists);
-        return Promise.resolve(lists)
+        //lists.push(listName)
+        await axios.post(httpAddress + '/lists', { id: listName , description : listName})
+        const lists = await apiClient.getLists();
+        return (lists);
     },
     getTodos: async (listName: string): Promise<string[]> => {
-        return Promise.resolve(listItems[listName])
+        const response = await axios.get(httpAddress + `/lists`);
+        const list = response.data.data.find((list: any) => list.id === listName);
+        const todos = list.item?.map((item: any) => item.id) || [];
+        return (todos);
     },
     addTodo: async (listName: string, todo: string) => {
-        console.debug('-- addTodo', listName, todo, listItems);
-        if (!listItems[listName]) {
-            listItems[listName] = []
-        }
-        listItems[listName].push(todo)
-        return Promise.resolve(listItems[listName])
+        await axios.post(httpAddress + '/lists/' + listName + '/items', { id: todo, description: todo, status: "pending"})
+        const listItems = await apiClient.getTodos(listName);
+        return (listItems);
     }
 }

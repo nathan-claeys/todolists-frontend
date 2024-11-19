@@ -1,5 +1,4 @@
 import { Form, Input, Button } from 'antd';
-import { useState } from 'react';
 
 interface ListFormProps {
   onListAdded?: (listName: string) => void;
